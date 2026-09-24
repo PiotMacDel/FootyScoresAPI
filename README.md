@@ -28,6 +28,7 @@ java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline
 java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline --quiet --endpoints-only
 
 # Print the reference payload for a specific match (by team name or date)
+java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline --print       # prints all matches
 java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline --print=spain
 java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline --print=2024-08-09
 ```
