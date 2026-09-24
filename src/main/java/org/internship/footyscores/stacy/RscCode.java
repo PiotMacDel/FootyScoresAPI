@@ -56,9 +56,4 @@ public record RscCode(String raw, String discipline, String gender, String phase
       default -> normalised.startsWith("GP") ? "Group " + normalised.substring(2) : normalised;
     };
   }
-
-  /** Stable, URL-safe identifier derived from the RSC code. */
-  public String matchId() {
-    return raw.replace("-", "").toLowerCase(Locale.ROOT);
-  }
 }
