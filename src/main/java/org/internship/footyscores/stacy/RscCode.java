@@ -1,7 +1,5 @@
 package org.internship.footyscores.stacy;
 
-import java.util.Locale;
-
 /**
  * Parser for Olympic Results System Codification codes, e.g. {@code
  * FBLMTEAM11------------FNL-000100--}.
