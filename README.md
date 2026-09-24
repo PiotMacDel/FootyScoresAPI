@@ -1,4 +1,4 @@
-# FootyScores API — Endpoint Generator
+# FootyScores API - Endpoint Generator
 
 A CLI tool that generates the **expected FootyScores API endpoint and reference payload for every
 football match of the Paris 2024 Olympic Games**, for use as ground-truth values in automated API tests.
@@ -28,7 +28,7 @@ java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline
 java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline --quiet --endpoints-only
 
 # Print the reference payload for a specific match (by team name or date)
-java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline --print       # prints all matches
+java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline --print  # prints all matches
 java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline --print=spain
 java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline --print=2024-08-09
 ```
@@ -177,7 +177,7 @@ Usage: footyscores-endpoints [-hqV] [--endpoints-only] [--offline] [--print[=FIL
 | Option | Description | Default |
 |---|---|---|
 | `-o, --output=DIR` | Output directory | `out` |
-| `--base-url=URL` | Prepended to every endpoint | *(empty — relative paths)* |
+| `--base-url=URL` | Prepended to every endpoint | *(empty - relative paths)* |
 | `--endpoint-prefix=PATH` | Endpoint path prefix | `api/v1/paris-2024/football` |
 | `--source-url=URL` | Origin of the Olympic data | `https://stacy.olympics.com` |
 | `--snapshot-dir=DIR` | Read-through cache of raw upstream JSON | *(none)* |
