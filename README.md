@@ -1,7 +1,7 @@
-# FootyScores API - Endpoint Generator
+# FootyScores API
 
-A CLI tool that generates the **expected FootyScores API endpoint and reference payload for every
-football match of the Paris 2024 Olympic Games**, for use as ground-truth values in automated API tests.
+A CLI tool that generates the **expected FootyScores API endpoints and reference payloads** for every
+football match of the Paris 2024 Olympic Games, and **serves them via a local HTTP mock server** for automated API testing.
 
 For each of the matches it produces:
 
@@ -14,23 +14,37 @@ The original assignment brief is preserved in [`assignment/ASSIGNMENT.md`](assig
 
 ## Quick start
 
+### 1. Build
 ```bash
 # Build (runs the test suite)
-./mvnw package          # Windows: .\mvnw.cmd package
-
+./mvnw clean package          # Windows: .\mvnw.cmd clean package
+```
+### 2. Generate data (offline or online)
+```bash
 # Fetches the data from the official Olympic feed and generates into ./out
-java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot
+# It will also create a snapshot of the data in ./snapshot by default.
+./footyscores generate --snapshot-dir snapshot
 
 # Generate into ./out without hitting the network (uses the committed snapshot)
-java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline
+./footyscores generate --snapshot-dir snapshot --offline
 
 # Just print the generated endpoints
-java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline --quiet --endpoints-only
+./footyscores generate --snapshot-dir snapshot --offline --quiet --endpoints-only
 
 # Print the reference payload for a specific match (by team name or date)
-java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline --print  # prints all matches
-java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline --print=spain
-java -jar target/footyscores-endpoints.jar --snapshot-dir snapshot --offline --print=2024-08-09
+./footyscores generate --snapshot-dir snapshot --offline --print  # prints all matches
+./footyscores generate --snapshot-dir snapshot --offline --print=FBLMTEAM11------------GPB-000100--
+./footyscores generate --snapshot-dir snapshot --offline --print=spain
+./footyscores generate --snapshot-dir snapshot --offline --print=2024-08-09
+```
+
+### 3. Serve the API (Mock Server)
+```bash
+# Serve the endpoints locally on default port 8080 based on the files in ./out
+./footyscores serve
+
+# You can now access your API, e.g.:
+# http://localhost:8080/api/v1/paris-2024/football/men/matches/2024-08-09/france-vs-spain
 ```
 
 Requirements: **JDK 21+** (developed on JDK 25). Maven is supplied via the wrapper - no local install needed.
@@ -166,12 +180,16 @@ Player names are normalised to `Given Family`. Where the feed supplies only an a
 
 ---
 
-## CLI reference
-
+## Usage
 ```
-Usage: footyscores-endpoints [-hqV] [--endpoints-only] [--offline] [--print[=FILTER]]
-                             [--base-url=URL] [--endpoint-prefix=PATH] [--lang=CODE]
-                             [-o=DIR] [--snapshot-dir=DIR] [--source-url=URL]
+./footyscores [COMMAND=generate|serve]
+```
+
+`generate` - creates the reference JSON payloads and endpoint index.
+```
+./footyscores generate [-hqV] [--endpoints-only] [--offline] [--print[=FILTER]]
+                                          [--base-url=URL] [--endpoint-prefix=PATH] [--lang=CODE]
+                                          [-o=DIR] [--snapshot-dir=DIR] [--source-url=URL]
 ```
 
 | Option | Description | Default |
@@ -188,7 +206,16 @@ Usage: footyscores-endpoints [-hqV] [--endpoints-only] [--offline] [--print[=FIL
 | `-q, --quiet` | Suppress progress output | `false` |
 | `-h, --help` /<br/> `-V, --version` | Help / version | |
 
-Progress and warnings go to **stderr**, so `--endpoints-only` can be piped safely.
+`serve` - starts a local HTTP WireMock server serving the generated JSON files as real REST endpoints.
+```
+./footyscores serve [-hV] [-d=DIR] [-p=PORT]
+```
+
+| Option | Description | Default |
+|---|---|---|
+| `-d, --dir=DIR` | Directory containing the generated `endpoints.json` | `out` |
+| `-p, --port=PORT` | HTTP port to listen on | `8080` |
+| `-h, --help` /<br/> `-V, --version` | Help / version | |
 
 ### Snapshots and reproducibility
 
@@ -208,6 +235,10 @@ machine. To refresh against live data, delete `snapshot/` and re-run without `--
 13 tests run against the committed snapshot and assert the acceptance criteria directly.
 Dependencies: JUnit 5 + AssertJ. The test suite is **fully offline** and does not hit the network.
 
+The test suite features robust API Integration Tests that dynamically spin up a WireMock HTTP server. 
+Designed to be completely self-contained, the suite generates test data on the fly into a temporary directory—running entirely offline if the snapshot exists, or self-healing via a live fetch if it is missing. 
+It then queries all match endpoints, validating HTTP interactions, headers, and strict JSON schema compliance against the Java domain models.
+
 ---
 
 ## Project layout
@@ -216,7 +247,9 @@ Dependencies: JUnit 5 + AssertJ. The test suite is **fully offline** and does no
 src/main/java/org/internship/footyscores/
 ├── Main.java                       # picocli entry point
 ├── EndpointGenerator.java          # filtering, ordering, uniqueness checks
-├── cli/GenerateCommand.java        # CLI options and deterministic JSON writing
+├── cli/
+│   ├── GenerateCommand.java        # CLI options and deterministic JSON writing
+│   └── ServeCommand.java           # WireMock local server implementation
 ├── mapping/MatchMapper.java        # upstream JSON -> example.json shape
 ├── model/ 
 │   ├── MatchFixture.java           # example.json shape
@@ -230,11 +263,11 @@ src/main/java/org/internship/footyscores/
     └── RscCode.java                # Olympic RSC code parsing
 ```
 
-Dependencies: picocli (CLI), Jackson (JSON), JUnit 5 + AssertJ (tests).
+Dependencies: picocli (CLI), Jackson (JSON), WireMock (Mock HTTP Server), JUnit 5 + AssertJ (tests).
 
 ---
 
 ## Deployment
 
 `./mvnw package` produces a self-contained executable JAR at
-`target/footyscores-endpoints.jar` (dependencies shaded in), runnable anywhere with a JDK 21+ runtime.
+`target/footyscores.jar` (dependencies shaded in), runnable anywhere with a JDK 21+ runtime.
