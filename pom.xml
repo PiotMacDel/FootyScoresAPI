@@ -18,7 +18,7 @@
         <picocli.version>4.7.6</picocli.version>
         <jackson.version>2.17.2</jackson.version>
         <junit.version>5.10.2</junit.version>
-        <assertj.version>3.25.3</assertj.version>
+        <assertj.version>3.27.7</assertj.version>
     </properties>
 
     <dependencies>
@@ -45,10 +45,16 @@
             <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/org.wiremock/wiremock -->
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>3.13.2</version>
+        </dependency>
     </dependencies>
 
     <build>
-        <finalName>footyscores-endpoints</finalName>
+        <finalName>footyscores</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
