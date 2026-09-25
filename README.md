@@ -274,8 +274,9 @@ src/main/java/org/internship/footyscores/
 ├── Main.java                       # picocli entry point
 ├── EndpointGenerator.java          # filtering, ordering, uniqueness checks
 ├── cli/
-│   ├── GenerateCommand.java        # CLI options and deterministic JSON writing
-│   └── ServeCommand.java           # WireMock local server implementation
+│   ├── GenerateCommand.java        # CLI options
+│   ├── ServeCommand.java           # WireMock local server implementation
+│   └── ShowCommand.java            # Printing JSON files in terminal
 ├── mapping/MatchMapper.java        # upstream JSON -> example.json shape
 ├── model/ 
 │   ├── MatchFixture.java           # example.json shape
