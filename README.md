@@ -22,7 +22,7 @@ The original assignment brief is preserved in [`assignment/ASSIGNMENT.md`](assig
 ### 2. Generate data (offline or online)
 ```bash
 # Fetches the data from the official Olympic feed and generates into ./out
-# It will also create a snapshot of the data in ./snapshot by default.
+# It will also create a snapshot of the data in ./snapshot folder.
 ./footyscores generate --snapshot-dir snapshot
 
 # Generate into ./out without hitting the network (uses the committed snapshot)
