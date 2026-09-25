@@ -19,7 +19,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(
-    name = "footyscores-endpoints",
+    name = "generate",
     mixinStandardHelpOptions = true,
     version = "footyscores-endpoints 1.0",
     sortOptions = false,
@@ -30,7 +30,8 @@ public final class GenerateCommand implements Callable<Integer> {
 
   private static final String ORDERING =
       "Ascending by kickoff instant (UTC), then by Olympic RSC code as a stable tie-breaker.";
-  // Value used only for warning if the number of generated matches is different from the expected number.
+  // Value used only for warning if the number of generated matches
+  // is different from the expected number.
   private static final int EXPECTED_MATCH_COUNT = 58;
   private static final String ENDPOINT_PREFIX = "api/v1/paris-2024/football";
 
@@ -165,8 +166,10 @@ public final class GenerateCommand implements Callable<Integer> {
     return 0;
   }
 
-  /** Case-insensitive substring match against the fields a user would filter on: which endpoint,
-   * which RSC code, or which two teams played. An empty filter matches every match. */
+  /**
+   * Case-insensitive substring match against the fields a user would filter on: which endpoint,
+   * which RSC code, or which two teams played. An empty filter matches every match.
+   */
   private static boolean matchesFilter(EndpointGenerator.GeneratedMatch match, String needleLower) {
     return contains(match.endpoint(), needleLower)
         || contains(match.rsc().raw(), needleLower)
@@ -186,9 +189,7 @@ public final class GenerateCommand implements Callable<Integer> {
     List<EndpointIndex.Endpoint> index =
         matches.stream()
             .map(
-                m ->
-                    new EndpointIndex.Endpoint(
-                        m.rsc().raw(), m.endpoint(), "matches/" + m.file()))
+                m -> new EndpointIndex.Endpoint(m.rsc().raw(), m.endpoint(), "matches/" + m.file()))
             .toList();
 
     EndpointIndex endpointIndex =
