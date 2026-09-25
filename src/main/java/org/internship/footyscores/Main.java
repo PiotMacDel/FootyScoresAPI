@@ -2,6 +2,7 @@ package org.internship.footyscores;
 
 import org.internship.footyscores.cli.GenerateCommand;
 import org.internship.footyscores.cli.ServeCommand;
+import org.internship.footyscores.cli.ShowCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -10,7 +11,7 @@ import picocli.CommandLine.Command;
     mixinStandardHelpOptions = true,
     version = "1.0",
     description = "CLI tool for generating and serving Olympic football match data.",
-    subcommands = {GenerateCommand.class, ServeCommand.class})
+    subcommands = {GenerateCommand.class, ServeCommand.class, ShowCommand.class})
 public final class Main {
 
   public Main() {}

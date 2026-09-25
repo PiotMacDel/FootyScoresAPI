@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.Callable;
 import org.internship.footyscores.EndpointGenerator;
 import org.internship.footyscores.model.EndpointIndex;
@@ -87,19 +86,6 @@ public final class GenerateCommand implements Callable<Integer> {
   boolean endpointsOnly;
 
   @Option(
-      names = {"--print"},
-      paramLabel = "FILTER",
-      arity = "0..1",
-      fallbackValue = "",
-      description =
-          "Print matching reference payload(s) as JSON to stdout instead of writing files. "
-              + "FILTER is matched case-insensitively against the endpoint, RSC code, and "
-              + "home/away team names, e.g. --print=spain or --print=2024-08-09. Omit FILTER "
-              + "(or pass --print with no value) to print every match. Takes precedence over "
-              + "--endpoints-only.")
-  String print;
-
-  @Option(
       names = {"--quiet", "-q"},
       description = "Suppress progress output.")
   boolean quiet;
@@ -120,12 +106,10 @@ public final class GenerateCommand implements Callable<Integer> {
           "WARNING: expected " + EXPECTED_MATCH_COUNT + " matches but generated " + matches.size());
     }
 
-    if (print != null) {
-      return printMatches(matches);
-    }
-
     if (endpointsOnly) {
       PrintWriter out = new PrintWriter(System.out, true, StandardCharsets.UTF_8);
+      String safePrefix = endpointPrefix.startsWith("/") ? endpointPrefix : "/" + endpointPrefix;
+      out.println(baseUrl + safePrefix + "/matches");
       matches.forEach(m -> out.println(m.endpoint()));
       out.flush();
       return 0;
@@ -134,52 +118,6 @@ public final class GenerateCommand implements Callable<Integer> {
     writeAll(matches, writer);
     progress("Wrote " + matches.size() + " matches to " + output.toAbsolutePath());
     return 0;
-  }
-
-  private Integer printMatches(List<EndpointGenerator.GeneratedMatch> matches) throws IOException {
-    ObjectWriter writer = Json.prettyWriter(new ObjectMapper());
-    String needle = print.toLowerCase(Locale.ROOT);
-    List<EndpointGenerator.GeneratedMatch> selected =
-        matches.stream().filter(m -> matchesFilter(m, needle)).toList();
-
-    if (selected.isEmpty()) {
-      System.err.println("No match found for --print filter: \"" + print + "\"");
-      return 1;
-    }
-
-    PrintWriter out = new PrintWriter(System.out, true, StandardCharsets.UTF_8);
-    for (int i = 0; i < selected.size(); i++) {
-      if (i > 0) {
-        out.println();
-      }
-      out.println(writer.writeValueAsString(selected.get(i).fixture()));
-    }
-    out.flush();
-
-    progress(
-        "Printed "
-            + selected.size()
-            + " of "
-            + matches.size()
-            + " match(es) matching \""
-            + print
-            + "\"");
-    return 0;
-  }
-
-  /**
-   * Case-insensitive substring match against the fields a user would filter on: which endpoint,
-   * which RSC code, or which two teams played. An empty filter matches every match.
-   */
-  private static boolean matchesFilter(EndpointGenerator.GeneratedMatch match, String needleLower) {
-    return contains(match.endpoint(), needleLower)
-        || contains(match.rsc().raw(), needleLower)
-        || contains(match.fixture().teams().home(), needleLower)
-        || contains(match.fixture().teams().away(), needleLower);
-  }
-
-  private static boolean contains(String haystack, String needleLower) {
-    return haystack != null && haystack.toLowerCase(Locale.ROOT).contains(needleLower);
   }
 
   private void writeAll(List<EndpointGenerator.GeneratedMatch> matches, ObjectWriter writer)

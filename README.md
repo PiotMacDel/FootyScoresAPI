@@ -30,12 +30,6 @@ The original assignment brief is preserved in [`assignment/ASSIGNMENT.md`](assig
 
 # Just print the generated endpoints
 ./footyscores generate --snapshot-dir snapshot --offline --quiet --endpoints-only
-
-# Print the reference payload for a specific match (by team name or date)
-./footyscores generate --snapshot-dir snapshot --offline --print  # prints all matches
-./footyscores generate --snapshot-dir snapshot --offline --print=FBLMTEAM11------------GPB-000100--
-./footyscores generate --snapshot-dir snapshot --offline --print=spain
-./footyscores generate --snapshot-dir snapshot --offline --print=2024-08-09
 ```
 
 ### 3. Serve the API (Mock Server)
@@ -47,6 +41,13 @@ The original assignment brief is preserved in [`assignment/ASSIGNMENT.md`](assig
 # http://localhost:8080/api/v1/paris-2024/football/men/matches/2024-08-09/france-vs-spain
 ```
 
+### 4. Print reference payloads in the terminal
+```bash
+# Print the reference payload for a specific match (by team name or date)
+./footyscores show                # prints all matches
+./footyscores show spain          # prints matches involving Spain
+./footyscores show 2024-08-09     # prints matches played on this date
+```
 Requirements: **JDK 21+** (developed on JDK 25). Maven is supplied via the wrapper - no local install needed.
 If the wrapper reports `JAVA_HOME not found`, set it first, e.g. on Windows:
 
@@ -191,14 +192,14 @@ Player names are normalised to `Given Family`. Where the feed supplies only an a
 
 ## Usage
 ```
-./footyscores [COMMAND=generate|serve]
+./footyscores [COMMAND=generate|serve|show]
 ```
 
 `generate` - creates the reference JSON payloads and endpoint index.
 ```
-./footyscores generate [-hqV] [--endpoints-only] [--offline] [--print[=FILTER]]
-                                          [--base-url=URL] [--endpoint-prefix=PATH] [--lang=CODE]
-                                          [-o=DIR] [--snapshot-dir=DIR] [--source-url=URL]
+./footyscores generate [-hqV] [--endpoints-only] [--offline]
+                       [--base-url=URL] [--endpoint-prefix=PATH] [--lang=CODE]
+                       [-o=DIR] [--snapshot-dir=DIR] [--source-url=URL]
 ```
 
 | Option | Description | Default |
@@ -211,7 +212,6 @@ Player names are normalised to `Given Family`. Where the feed supplies only an a
 | `--offline` | Fail rather than hit the network; requires `--snapshot-dir` | `false` |
 | `--lang=CODE` | Upstream language code | `ENG` |
 | `--endpoints-only` | Print endpoints to stdout, skip payload files | `false` |
-| `--print=FILTER` | Print matching reference payload(s) as JSON to stdout instead of writing files.<br/>For example: `--print=spain` or `--print=2024-08-09`. |  |
 | `-q, --quiet` | Suppress progress output | `false` |
 | `-h, --help` /<br/> `-V, --version` | Help / version | |
 
@@ -225,6 +225,23 @@ Player names are normalised to `Given Family`. Where the feed supplies only an a
 | `-d, --dir=DIR` | Directory containing the generated `endpoints.json` | `out` |
 | `-p, --port=PORT` | HTTP port to listen on | `8080` |
 | `-h, --help` /<br/> `-V, --version` | Help / version | |
+
+`show` - searches and prints match payloads directly to the terminal.
+```
+./footyscores show [FILTER] [-d=DIR]
+```
+
+| Option | Description | Default |
+|---|---|---|
+| `FILTER` | Print matching reference payload(s) as JSON to stdout instead of writing files. |  |
+| `-d, --dir=DIR` | Directory containing generated files | `out` |
+
+Examples:
+```bash
+./footyscores show                # prints all matches
+./footyscores show spain          # prints matches involving Spain
+./footyscores show 2024-08-09     # prints matches played on this date
+```
 
 ### Snapshots and reproducibility
 
