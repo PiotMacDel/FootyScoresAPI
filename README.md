@@ -220,7 +220,7 @@ Player names are normalised to `Given Family`. Where the feed supplies only an a
 ### Snapshots and reproducibility
 
 `--snapshot-dir` is a read-through cache: existing files are reused, missing ones are downloaded and
-stored. The repository ships a committed [`snapshot/`](snapshot) captured from the
+stored. The repository ships a committed `snapshot/` captured from the
 official feed, so the tool and its tests run **fully offline** and produce identical results on any
 machine. To refresh against live data, delete `snapshot/` and re-run without `--offline`.
 
