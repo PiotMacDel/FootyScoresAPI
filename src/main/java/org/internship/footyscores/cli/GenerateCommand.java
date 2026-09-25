@@ -12,6 +12,7 @@ import java.util.Locale;
 import java.util.concurrent.Callable;
 import org.internship.footyscores.EndpointGenerator;
 import org.internship.footyscores.model.EndpointIndex;
+import org.internship.footyscores.model.MatchFixture;
 import org.internship.footyscores.output.EndpointBuilder;
 import org.internship.footyscores.output.Json;
 import org.internship.footyscores.stacy.StacyClient;
@@ -21,7 +22,7 @@ import picocli.CommandLine.Option;
 @Command(
     name = "generate",
     mixinStandardHelpOptions = true,
-    version = "footyscores-endpoints 1.0",
+    version = "footyscores 1.0",
     sortOptions = false,
     description =
         "Generates the expected FootyScores API endpoint and reference payload for every "
@@ -192,6 +193,14 @@ public final class GenerateCommand implements Callable<Integer> {
                 m -> new EndpointIndex.Endpoint(m.rsc().raw(), m.endpoint(), "matches/" + m.file()))
             .toList();
 
+    for (EndpointGenerator.GeneratedMatch match : matches) {
+      writeJson(matchesDir.resolve(match.file()), match.fixture(), writer);
+    }
+
+    List<MatchFixture> allFixtures =
+        matches.stream().map(EndpointGenerator.GeneratedMatch::fixture).toList();
+    writeJson(matchesDir.resolve("all.json"), allFixtures, writer);
+
     EndpointIndex endpointIndex =
         new EndpointIndex(
             "Olympic Games Paris 2024",
@@ -199,12 +208,11 @@ public final class GenerateCommand implements Callable<Integer> {
             sourceUrl + "/en/paris-2024/competition-schedule",
             ORDERING,
             matches.size(),
+            endpointPrefix + "/matches",
+            "matches/all.json",
             index);
 
     writeJson(output.resolve("endpoints.json"), endpointIndex, writer);
-    for (EndpointGenerator.GeneratedMatch match : matches) {
-      writeJson(matchesDir.resolve(match.file()), match.fixture(), writer);
-    }
   }
 
   private static void writeJson(Path target, Object value, ObjectWriter writer) throws IOException {

@@ -2,15 +2,15 @@ package org.internship.footyscores.model;
 
 import java.util.List;
 
-/**
- * Representation of available endpoints for football match data.
- */
+/** Representation of available endpoints for football match data. */
 public record EndpointIndex(
     String competition,
     String discipline,
     String source,
     String ordering,
     int matchCount,
+    String collectionEndpoint,
+    String collectionFile,
     List<Endpoint> endpoints) {
 
   public EndpointIndex {
@@ -21,6 +21,8 @@ public record EndpointIndex(
     if (matchCount < 0) {
       throw new IllegalArgumentException("matchCount must not be negative");
     }
+    Require.notBlank(collectionEndpoint, "collectionEndpoint");
+    Require.notBlank(collectionFile, "collectionFile");
     Require.notNull(endpoints, "endpoints");
   }
 

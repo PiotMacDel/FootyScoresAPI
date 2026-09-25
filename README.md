@@ -62,6 +62,7 @@ $env:JAVA_HOME = "C:\Program Files\Java\jdk-25.0.4.1"
 out/
 ├── endpoints.json                                   # ordered index of all generated endpoints
 └── matches/
+    ├── all.json                                     # array of all match payloads
     ├── men
     |    ├── 2024-07-24-argentina-vs-morocco.json    # payload in example.json shape
     |   ...
@@ -79,6 +80,8 @@ out/
   "source": "https://stacy.olympics.com/en/paris-2024/competition-schedule",
   "ordering": "Ascending by kickoff instant (UTC), then by Olympic RSC code as a stable tie-breaker.",
   "matchCount": 58,
+  "collectionEndpoint": "/api/v1/paris-2024/football/matches",
+  "collectionFile": "matches/all.json",
   "endpoints": [
     {
        "matchId": "FBLMTEAM11------------GPB-000100--",
@@ -107,6 +110,12 @@ A team plays at most once per day, so `(gender, date, home, away)` identifies ex
 It is designed this way instead of using match ID or RSC code in the URL so that the endpoint is 
 **human-readable** for testing. The tool **fails loudly** if two matches ever produce the same endpoint. 
 Both `--base-url` and `--endpoint-prefix` are configurable.
+
+To return all match payloads, use the collection endpoint:
+
+```
+{base-url}/api/v1/paris-2024/football/matches
+```
 
 ### Ordering (deterministic)
 

@@ -60,6 +60,23 @@ public final class ServeCommand implements Callable<Integer> {
       }
     }
 
+    Path allMatchesFile = dir.resolve(index.collectionFile());
+    if (Files.exists(allMatchesFile)) {
+      String allMatchesBody = Files.readString(allMatchesFile);
+      String collectionUrl =
+          index.collectionEndpoint().startsWith("/")
+              ? index.collectionEndpoint()
+              : "/" + index.collectionEndpoint();
+
+      server.stubFor(
+          get(urlEqualTo(collectionUrl))
+              .willReturn(
+                  aResponse()
+                      .withHeader("Content-Type", "application/json")
+                      .withStatus(200)
+                      .withBody(allMatchesBody)));
+    }
+
     System.out.println("Mock API is running on http://localhost:" + port);
     System.out.println("Serving " + index.matchCount() + " endpoints. Press Ctrl+C to stop.");
 

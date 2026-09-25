@@ -79,6 +79,23 @@ class ApiIntegrationTest {
                       .withStatus(200)
                       .withBody(jsonBody)));
     }
+
+    File allMatchesFile = tempOutDir.resolve(index.collectionFile()).toFile();
+    if (allMatchesFile.exists()) {
+      String allMatchesBody = java.nio.file.Files.readString(allMatchesFile.toPath());
+      String collectionUrl =
+          index.collectionEndpoint().startsWith("/")
+              ? index.collectionEndpoint()
+              : "/" + index.collectionEndpoint();
+
+      wiremock.stubFor(
+          get(urlEqualTo(collectionUrl))
+              .willReturn(
+                  aResponse()
+                      .withHeader("Content-Type", "application/json")
+                      .withStatus(200)
+                      .withBody(allMatchesBody)));
+    }
   }
 
   @Test
@@ -115,5 +132,26 @@ class ApiIntegrationTest {
           },
           "Failed to parse valid MatchFixture for endpoint: " + urlPath);
     }
+  }
+
+  @Test
+  void collectionEndpointShouldReturnAllMatches() throws Exception {
+    File indexFile = tempOutDir.resolve("endpoints.json").toFile();
+    EndpointIndex index = mapper.readValue(indexFile, EndpointIndex.class);
+
+    String urlPath =
+        index.collectionEndpoint().startsWith("/")
+            ? index.collectionEndpoint()
+            : "/" + index.collectionEndpoint();
+
+    HttpRequest request =
+        HttpRequest.newBuilder().uri(URI.create(wiremock.baseUrl() + urlPath)).GET().build();
+
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    assertThat(response.statusCode()).isEqualTo(200);
+
+    MatchFixture[] allMatches = mapper.readValue(response.body(), MatchFixture[].class);
+    assertThat(allMatches).hasSize(58);
   }
 }
